@@ -17,3 +17,8 @@ def obtener_datos(nodo_id: int, db: Session = Depends(get_db)):
 def crear_registro(registro: schemas.RegistroCreate, db: Session = Depends(get_db)):
     return crud.crear_registro(db, registro)
 
+@router.delete("/eliminar/{nodo_id}")
+def eliminar_registros_nodo(nodo_id: int, db: Session = Depends(get_db)):
+    return crud.eliminar_por_nodo(db, nodo_id)
+
+

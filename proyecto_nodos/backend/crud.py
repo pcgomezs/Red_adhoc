@@ -25,3 +25,8 @@ def get_datos_nodo(db: Session, nodo_id: int):
         .limit(1000)
         .all()
     )
+
+def eliminar_por_nodo(db: Session, nodo_id: int):
+    db.query(models.Registro).filter(models.Registro.nodo == nodo_id).delete()
+    db.commit()
+    return {"mensaje": f"Registros del nodo {nodo_id} eliminados."}

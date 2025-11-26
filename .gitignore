@@ -1,0 +1,65 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.env
+.venv/
+A_venv/
+env/
+ENV/
+
+# Archivos de entorno
+*.env
+
+# Carpetas de build / cache
+build/
+dist/
+pip-wheel-metadata/
+*.egg-info/
+
+# Archivos creados por herramientas Python
+.ipynb_checkpoints
+.pytest_cache/
+.mypy_cache/
+coverage.xml
+htmlcov/
+
+# --- FastAPI / Uvicorn ---
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# --- Node / Frontend (si usas JS estático) ---
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# --- Editors ---
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm / JetBrains
+.idea/
+
+# --- Sistema operativo ---
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# --- Static compiled files ---
+static/*.map
+static/js/*.map
+static/css/*.map
+
+# --- Optional: compiled assets ---
+static_build/

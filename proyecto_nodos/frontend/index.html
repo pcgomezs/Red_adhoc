@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitoreo de Nodos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .alerta {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Nodo a graficar: </h2>
+<select id="nodoSelect" onchange="cargarDatos()">
+    <option value="1">Nodo 1</option>
+    <option value="2">Nodo 2</option>
+    <option value="3">Nodo 3</option>
+    <option value="4">Nodo 4</option>
+</select>
+
+<canvas id="grafica" width="400" height="50"></canvas>
+<div id="alerta" class="alerta"></div>
+
+<script>
+let grafica = null;
+
+// 🟦 Umbral específico por cada nodo
+const UMBRALES = {
+    1: 700,
+    2: 8000,
+    3: 800,
+    4: 5
+};
+
+async function cargarDatos() {
+    const nodo = document.getElementById("nodoSelect").value;
+
+    let mensajeAlerta = "";
+    let esAlarma = false;
+
+    const UMBRAL = UMBRALES[nodo];  // ← umbral dinámico por nodo
+
+    /*********************************************************************
+     ACA CAMBIA LA IP A LOCAL O AL SERVIDOR
+    */
+
+    //const res = await fetch(`http://127.0.0.1:8000/api/nodo/${nodo}`);
+    const res = await fetch(`http://18.189.70.77:8000/api/nodo/${nodo}`);
+
+    const datos = await res.json();
+
+    const valores = datos.map(d => d.dato);
+    const labels = datos.map((d, i) => "Muestra " + (i + 1));
+    const variable = datos[0]?.variable || "variable";
+
+    // 🟦 TOMAR SOLO EL ÚLTIMO VALOR
+    const ultimoValor = valores[valores.length - 1];
+    const alertaDiv = document.getElementById("alerta");
+
+    // 🟦 Mostrar alerta solo si el último valor está por debajo del umbral
+
+    // --- LÓGICA DE ALERTA POR NODO ---
+    if (nodo == "1") {
+        if (ultimoValor < 700) {
+            mensajeAlerta = "🌧️ Alta probabilidad de lluvias";
+            esAlarma = true;
+        } 
+    }
+
+    else if (nodo == "2") {
+        if (ultimoValor < 8000) {
+            mensajeAlerta = "💡 Poca luz detectada";
+            esAlarma = true;
+        } 
+    }
+
+    else if (nodo == "3") {
+        if (ultimoValor > 800) {
+            mensajeAlerta = "🚫 Por favor NO riegue el cultivo";
+            esAlarma = true;
+        } else if (ultimoValor < 300) {
+            mensajeAlerta = "💧 Por favor riegue el cultivo";
+            esAlarma = true;
+        } 
+    }
+
+    else if (nodo == "4") {
+        if (ultimoValor < 5) {
+            mensajeAlerta = "❄️ Temperaturas muy bajas";
+            esAlarma = true;
+        } else if (ultimoValor > 30) {
+            mensajeAlerta = "🔥 Temperaturas muy altas";
+            esAlarma = true;
+        }        
+    }
+
+    // --- MOSTRAR ALERTA U OK ---
+    if (esAlarma) {
+        alertaDiv.innerHTML = `⚠️ ALERTA: ${mensajeAlerta} (valor: ${ultimoValor})`;
+        alertaDiv.style.color = "red";
+    } 
+    else {
+        alertaDiv.innerHTML = `✔️ OK: Último valor (${ultimoValor}) dentro de los parámetros`;
+        alertaDiv.style.color = "green";
+    }
+
+
+    if (grafica) {
+        grafica.destroy();
+    }
+
+    grafica = new Chart(document.getElementById("grafica"), {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `Valores de ${variable}`,
+                data: valores,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const valor = context.raw;
+                            return `${variable}: ${valor}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+cargarDatos();
+</script>
+
+</body>
+</html>
